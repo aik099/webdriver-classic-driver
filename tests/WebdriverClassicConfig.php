@@ -3,7 +3,6 @@
 namespace Mink\WebdriverClassDriver\Tests;
 
 use Behat\Mink\Driver\DriverInterface;
-use Behat\Mink\Exception\DriverException;
 use Behat\Mink\Tests\Driver\AbstractConfig;
 use Behat\Mink\Tests\Driver\Basic\BasicAuthTest;
 use Behat\Mink\Tests\Driver\Basic\HeaderTest;
@@ -41,7 +40,7 @@ class WebdriverClassicConfig extends AbstractConfig
     public function skipMessage($testCase, $test): ?string
     {
         switch (true) {
-            case $testCase === WindowTest::class && $test === 'testWindowMaximize' && $this->isXvfb():
+            case [$testCase, $test] === [WindowTest::class, 'testWindowMaximize'] && $this->isXvfb():
                 return 'Maximizing the window does not work when running the browser in Xvfb.';
 
             case $testCase === BasicAuthTest::class:
@@ -53,8 +52,15 @@ class WebdriverClassicConfig extends AbstractConfig
             case $testCase === StatusCodeTest::class:
                 return 'Checking status code is not supported.';
 
-            case $testCase === EventsTest::class && $test === 'testKeyboardEvents' && $this->isOldChrome():
+            case [$testCase, $test] === [EventsTest::class, 'testKeyboardEvents'] && $this->isOldChrome():
                 return 'Old Chrome does not allow triggering events.';
+
+            case [$testCase, $test] === [EventsTest::class, 'testBlur']:
+            case [$testCase, $test] === [EventsTest::class, 'testFocus']:
+                return 'Focus/blur are not supported anymore.';
+
+            case [$testCase, $test] === [EventsTest::class, 'testKeyboardEvents']:
+                return 'Keyboard events are currently not supported.';
 
             default:
                 return parent::skipMessage($testCase, $test);
